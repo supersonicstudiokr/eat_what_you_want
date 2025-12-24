@@ -87,6 +87,7 @@
       background: rgba(0,0,0,.10);
     }
 
+    /* mouth: now contains two inputs (지역, 음식) + 버튼 */
     .mouth{
       position:absolute;
       top: var(--mouthTop);
@@ -105,17 +106,36 @@
       gap: 10px;
       backdrop-filter: blur(6px);
     }
+
+    /* container for inputs to control relative sizes */
+    .inputs{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex:1;
+      height:100%;
+    }
+
     .mouth input{
-      flex: 1;
       height: 100%;
       border: none;
       outline: none;
       background: var(--panel);
       color: var(--text);
       border-radius: 999px;
-      padding: 0 14px;
+      padding: 0 12px;
       font-size: 16px;
     }
+
+    .mouth .loc{
+      width: 32%;
+      min-width: 80px;
+      max-width: 140px;
+    }
+    .mouth .food{
+      flex: 1;
+    }
+
     .mouth button{
       height: 100%;
       border: 1px solid rgba(0,0,0,.18);
@@ -158,8 +178,8 @@
 <body>
   <div class="wrap">
     <div class="hint">
-      <b>주희의 입으로 네이버 “맛집” 검색</b><br/>
-      예: <b>“성수 파스타”</b> → 네이버에서 <b>“성수 파스타 맛집”</b>으로 검색돼요.
+      <b>오늘도 원하는 음식을 맛있게 먹어요 “맛집” 검색</b><br/>
+      예: <b>지역: 성수</b> + <b>음식: 파스타</b> → 네이버에서 <b>“성수 파스타 맛집”</b>으로 검색돼요.
     </div>
 
     <div class="stage" aria-label="Joohee head naver 맛집 search">
@@ -169,25 +189,38 @@
       <div class="nose"></div>
 
       <form class="mouth" id="mouthForm">
-        <input
-          id="foodInput"
-          type="text"
-          inputmode="search"
-          autocomplete="off"
-          placeholder="지역 + 음식 입력… (예: 성수 파스타)"
-          aria-label="지역과 음식"
-        />
+        <div class="inputs" aria-hidden="false">
+          <input
+            id="locInput"
+            class="loc"
+            type="text"
+            inputmode="text"
+            autocomplete="off"
+            placeholder="지역 (예: 성수)"
+            aria-label="지역"
+          />
+          <input
+            id="foodInput"
+            class="food"
+            type="text"
+            inputmode="search"
+            autocomplete="off"
+            placeholder="음식 (예: 파스타)"
+            aria-label="음식"
+          />
+        </div>
         <button type="submit">냠! 검색</button>
       </form>
     </div>
 
     <div class="row">
-      <button class="chip" type="button" data-q="홍대 라멘">홍대 라멘</button>
-      <button class="chip" type="button" data-q="을지로 포차">을지로 포차</button>
-      <button class="chip" type="button" data-q="연남 파스타">연남 파스타</button>
-      <button class="chip" type="button" data-q="성수 베이커리">성수 베이커리</button>
-      <button class="chip" type="button" data-q="동인천 냉면">동인천 냉면</button>
-      <button class="chip" type="button" data-q="부평 카페">부평 카페</button>
+      <!-- 각 버튼에 data-location / data-food 속성 추가 -->
+      <button class="chip" type="button" data-location="홍대" data-food="라멘">홍대 라멘</button>
+      <button class="chip" type="button" data-location="을지로" data-food="포차">을지로 포차</button>
+      <button class="chip" type="button" data-location="연남" data-food="파스타">연남 파스타</button>
+      <button class="chip" type="button" data-location="성수" data-food="베이커리">성수 베이커리</button>
+      <button class="chip" type="button" data-location="동인천" data-food="냉면">동인천 냉면</button>
+      <button class="chip" type="button" data-location="부평" data-food="카페">부평 카페</button>
     </div>
 
     <div class="small">
@@ -196,37 +229,48 @@
   </div>
 
   <script>
-    function normalizeQuery(raw) {
-      const q = (raw || "").trim().replace(/\s+/g, " ");
-      if (!q) return "";
-      // 이미 맛집/맛 집/맛집추천 등이 들어있으면 그대로
+    // location + food를 받아서 적절히 결합하고 "맛집" 중복을 방지합니다.
+    function normalizeQuery(locationRaw, foodRaw) {
+      const loc = (locationRaw || "").trim().replace(/\s+/g, " ");
+      const food = (foodRaw || "").trim().replace(/\s+/g, " ");
+      const parts = [];
+      if (loc) parts.push(loc);
+      if (food) parts.push(food);
+      if (parts.length === 0) return "";
+      const q = parts.join(" ");
+      // location 또는 food 어디에든 "맛집"이 들어있으면 추가하지 않음
       const hasMatjip = /맛\s*집/.test(q);
-      if (hasMatjip) return q;
-      return q + " 맛집";
+      return hasMatjip ? q : q + " 맛집";
     }
 
-    function goNaverSearch(raw) {
-      const q = normalizeQuery(raw);
+    function goNaverSearch(location, food) {
+      const q = normalizeQuery(location, food);
       if (!q) return;
       const url = "https://search.naver.com/search.naver?query=" + encodeURIComponent(q);
       window.open(url, "_blank", "noopener,noreferrer");
     }
 
     const form = document.getElementById("mouthForm");
-    const input = document.getElementById("foodInput");
+    const locInput = document.getElementById("locInput");
+    const foodInput = document.getElementById("foodInput");
 
     form.addEventListener("submit", (e) => {
       e.preventDefault();
-      goNaverSearch(input.value);
+      goNaverSearch(locInput.value, foodInput.value);
     });
 
+    // 칩 클릭: data-location / data-food가 있으면 두 필드에 채우고 검색
     document.querySelectorAll(".chip").forEach(btn => {
       btn.addEventListener("click", () => {
-        const q = btn.getAttribute("data-q") || btn.textContent;
-        input.value = q;
-        goNaverSearch(q);
+        const loc = btn.getAttribute("data-location") || "";
+        const food = btn.getAttribute("data-food") || "";
+        if (loc) locInput.value = loc;
+        if (food) foodInput.value = food;
+        goNaverSearch(loc, food);
       });
     });
+
+    // 작은 UX 개선: food 입력만 하고 Enter 치면 제출되도록 이미 form 동작으로 처리됨
   </script>
 </body>
 </html>
