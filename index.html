@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>주희의 입으로 네이버 검색하기</title>
+  <title>주희의 입으로 네이버 맛집 검색하기</title>
 
   <style>
     :root{
@@ -52,7 +52,6 @@
       user-select:none;
     }
 
-    /* ✅ 이미지 대신: CSS로 만든 큰 “머리” */
     .head{
       position:absolute;
       inset:0;
@@ -65,7 +64,6 @@
       overflow:hidden;
     }
 
-    /* ✅ 눈/코(귀여운 포인트) */
     .eye{
       position:absolute;
       top: 36%;
@@ -89,7 +87,6 @@
       background: rgba(0,0,0,.10);
     }
 
-    /* ✅ 입(검색창) */
     .mouth{
       position:absolute;
       top: var(--mouthTop);
@@ -161,11 +158,11 @@
 <body>
   <div class="wrap">
     <div class="hint">
-      <b>주희의 입으로 네이버 검색하기</b><br/>
-      먹고 싶은 음식을 입력하면 새 탭에서 <b>네이버 검색</b>으로 바로 이동해요.
+      <b>주희의 입으로 네이버 “맛집” 검색</b><br/>
+      예: <b>“성수 파스타”</b> → 네이버에서 <b>“성수 파스타 맛집”</b>으로 검색돼요.
     </div>
 
-    <div class="stage" aria-label="Joohee head naver search (no image)">
+    <div class="stage" aria-label="Joohee head naver 맛집 search">
       <div class="head"></div>
       <div class="eye left"></div>
       <div class="eye right"></div>
@@ -177,36 +174,41 @@
           type="text"
           inputmode="search"
           autocomplete="off"
-          placeholder="먹고 싶은 음식 입력… (예: 떡볶이)"
-          aria-label="먹고 싶은 음식"
+          placeholder="지역 + 음식 입력… (예: 성수 파스타)"
+          aria-label="지역과 음식"
         />
         <button type="submit">냠! 검색</button>
       </form>
     </div>
 
     <div class="row">
-      <button class="chip" type="button" data-q="떡볶이">떡볶이</button>
-      <button class="chip" type="button" data-q="칼국수">칼국수</button>
-      <button class="chip" type="button" data-q="김치찌개">김치찌개</button>
-      <button class="chip" type="button" data-q="스시">스시</button>
-      <button class="chip" type="button" data-q="비건 디저트">비건 디저트</button>
-      <button class="chip" type="button" data-q="성수 맛집">성수 맛집</button>
+      <button class="chip" type="button" data-q="홍대 라멘">홍대 라멘</button>
+      <button class="chip" type="button" data-q="을지로 포차">을지로 포차</button>
+      <button class="chip" type="button" data-q="연남 파스타">연남 파스타</button>
+      <button class="chip" type="button" data-q="성수 베이커리">성수 베이커리</button>
+      <button class="chip" type="button" data-q="동인천 냉면">동인천 냉면</button>
+      <button class="chip" type="button" data-q="부평 카페">부평 카페</button>
     </div>
 
     <div class="small">
-      * 이미지 파일 없이도 동작합니다. (index.html 하나면 끝)
+      * 입력에 이미 “맛집”이 포함돼 있으면 중복으로 붙이지 않아요.
     </div>
   </div>
 
   <script>
-    function makeNaverSearchUrl(q) {
-      const query = encodeURIComponent((q || "").trim());
-      if (!query) return null;
-      return `https://search.naver.com/search.naver?query=${query}`;
+    function normalizeQuery(raw) {
+      const q = (raw || "").trim().replace(/\s+/g, " ");
+      if (!q) return "";
+      // 이미 맛집/맛 집/맛집추천 등이 들어있으면 그대로
+      const hasMatjip = /맛\s*집/.test(q);
+      if (hasMatjip) return q;
+      return q + " 맛집";
     }
-    function goNaverSearch(q) {
-      const url = makeNaverSearchUrl(q);
-      if (!url) return;
+
+    function goNaverSearch(raw) {
+      const q = normalizeQuery(raw);
+      if (!q) return;
+      const url = "https://search.naver.com/search.naver?query=" + encodeURIComponent(q);
       window.open(url, "_blank", "noopener,noreferrer");
     }
 
