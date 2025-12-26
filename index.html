@@ -6,71 +6,53 @@
   <title>Eat What You Want</title>
   <style>
     :root{
-      --bg:#0b0f14;
-      --panel:#121a24;
-      --text:#eaf2ff;
-      --muted:rgba(234,242,255,.7);
-      --line:rgba(234,242,255,.14);
-      --btn:#1b2a3b;
-      --btn2:#23364d;
-    }
-    *{ box-sizing:border-box; }
-    body{
-      margin:0;
-      background:radial-gradient(1200px 700px at 20% 10%, rgba(90,140,255,.18), transparent 60%),
-                 radial-gradient(1000px 600px at 80% 20%, rgba(255,120,200,.12), transparent 55%),
-                 var(--bg);
-      color:var(--text);
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:22px;
-    }
-    .wrap{
-      width:min(980px, 100%);
-      display:grid;
-      gap:14px;
-    }
-    header{
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-end;
-      gap:10px;
-    }
-    h1{
-      margin:0;
-      font-size:20px;
-      letter-spacing:.2px;
-    }
-    .hint{
-      margin:0;
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.35;
-      text-align:right;
-    }
-    .card{
-      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      border:1px solid var(--line);
-      border-radius:16px;
-      overflow:hidden;
-      box-shadow:0 10px 30px rgba(0,0,0,.35);
-    }
-    .gameArea{
-      position:relative;
-      padding:12px;
-      background:rgba(0,0,0,.10);
-    }
-    canvas{
-      display:block;
-      width:100%;
-      height:auto;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.10);
-      background:#070a0f;
-    }
+  --bg:#f6f7fb;          /* 전체 배경 */
+  --panel:#ffffff;       /* 카드/패널 */
+  --text:#111827;        /* 기본 글자 */
+  --muted:rgba(17,24,39,.65);
+  --line:rgba(17,24,39,.12);
+  --btn:#eef2ff;
+  --btn2:#e0e7ff;
+}
+
+body{
+  margin:0;
+  background:
+    radial-gradient(1200px 700px at 20% 10%, rgba(90,140,255,.18), transparent 60%),
+    radial-gradient(1000px 600px at 80% 20%, rgba(255,120,200,.14), transparent 55%),
+    var(--bg);
+  color:var(--text);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:22px;
+}
+
+.card{
+  background:linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.88));
+  border:1px solid var(--line);
+  border-radius:16px;
+  overflow:hidden;
+  box-shadow:0 10px 30px rgba(0,0,0,.10);
+}
+
+.gameArea{
+  position:relative;
+  padding:12px;
+  background:rgba(17,24,39,.03);
+}
+
+canvas{
+  display:block;
+  width:100%;
+  height:auto;
+  border-radius:14px;
+  border:1px solid rgba(17,24,39,.12);
+  background:#ffffff; /* 캔버스 바탕도 밝게 */
+}
+
     .hud{
       position:absolute;
       top:18px;
