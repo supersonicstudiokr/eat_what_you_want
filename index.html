@@ -3,160 +3,264 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Eat What You Want</title>
+  <title>Fridge Roulette — Eat What You Want</title>
   <style>
     :root{
-  --bg:#f6f7fb;          /* 전체 배경 */
-  --panel:#ffffff;       /* 카드/패널 */
-  --text:#111827;        /* 기본 글자 */
-  --muted:rgba(17,24,39,.65);
-  --line:rgba(17,24,39,.12);
-  --btn:#eef2ff;
-  --btn2:#e0e7ff;
-}
-
-body{
-  margin:0;
-  background:
-    radial-gradient(1200px 700px at 20% 10%, rgba(90,140,255,.18), transparent 60%),
-    radial-gradient(1000px 600px at 80% 20%, rgba(255,120,200,.14), transparent 55%),
-    var(--bg);
-  color:var(--text);
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:22px;
-}
-
-.card{
-  background:linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.88));
-  border:1px solid var(--line);
-  border-radius:16px;
-  overflow:hidden;
-  box-shadow:0 10px 30px rgba(0,0,0,.10);
-}
-
-.gameArea{
-  position:relative;
-  padding:12px;
-  background:rgba(17,24,39,.03);
-}
-
-canvas{
-  display:block;
-  width:100%;
-  height:auto;
-  border-radius:14px;
-  border:1px solid rgba(17,24,39,.12);
-  background:#ffffff; /* 캔버스 바탕도 밝게 */
-}
-
-    .hud{
-      position:absolute;
-      top:18px;
-      left:18px;
-      right:18px;
+      --bg:#f7f8fc;
+      --card:#ffffff;
+      --text:#111827;
+      --muted:rgba(17,24,39,.65);
+      --line:rgba(17,24,39,.12);
+      --shadow:0 18px 45px rgba(0,0,0,.10);
+      --accent:#3b82f6;
+      --danger:#ef4444;
+      --good:#10b981;
+      --tile:#f1f5f9;
+      --tile2:#eef2ff;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      background:
+        radial-gradient(1200px 700px at 20% 10%, rgba(59,130,246,.16), transparent 60%),
+        radial-gradient(1000px 600px at 80% 25%, rgba(236,72,153,.12), transparent 55%),
+        var(--bg);
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding:20px;
+    }
+    .wrap{
+      width:min(980px, 100%);
+      display:grid;
+      gap:14px;
+    }
+    header{
       display:flex;
       justify-content:space-between;
-      align-items:flex-start;
-      pointer-events:none;
-      gap:10px;
-      font-size:13px;
-      color:rgba(234,242,255,.92);
-      text-shadow:0 2px 10px rgba(0,0,0,.8);
-    }
-    .hud .box{
-      background:rgba(0,0,0,.30);
-      border:1px solid rgba(255,255,255,.12);
-      padding:10px 12px;
-      border-radius:12px;
-      backdrop-filter: blur(6px);
-    }
-    .hud .box b{ font-weight:700; }
-    .panel{
-      display:flex;
+      align-items:flex-end;
+      gap:12px;
       flex-wrap:wrap;
+    }
+    h1{
+      margin:0;
+      font-size:20px;
+      letter-spacing:.2px;
+    }
+    .sub{
+      margin:0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.4;
+    }
+
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.98), rgba(255,255,255,.92));
+      border:1px solid var(--line);
+      border-radius:18px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .topbar{
+      display:flex;
       gap:10px;
+      padding:14px;
+      border-bottom:1px solid var(--line);
       align-items:center;
-      padding:12px;
-      background:rgba(255,255,255,.03);
-      border-top:1px solid var(--line);
+      flex-wrap:wrap;
+    }
+    .pill{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      background:rgba(17,24,39,.04);
+      border:1px solid var(--line);
+      padding:10px 12px;
+      border-radius:999px;
+      font-size:13px;
+    }
+    .pill b{ font-weight:800; }
+    .targets{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .target{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      border:1px solid var(--line);
+      background:rgba(59,130,246,.08);
+      padding:8px 10px;
+      border-radius:999px;
+      font-size:14px;
+    }
+    .target.done{
+      background:rgba(16,185,129,.12);
+      border-color:rgba(16,185,129,.35);
+      text-decoration:line-through;
+      opacity:.85;
+    }
+    .msg{
+      margin-left:auto;
+      color:var(--muted);
+      font-size:13px;
+      white-space:nowrap;
+    }
+
+    .content{
+      display:grid;
+      grid-template-columns: 1fr 320px;
+      gap:14px;
+      padding:14px;
+    }
+    @media (max-width: 860px){
+      .content{ grid-template-columns:1fr; }
+      .msg{ margin-left:0; white-space:normal; }
+    }
+
+    /* Fridge */
+    .fridge{
+      background:linear-gradient(180deg, rgba(59,130,246,.10), rgba(236,72,153,.06));
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:14px;
+      position:relative;
+    }
+    .fridge:before{
+      content:"";
+      position:absolute;
+      inset:10px;
+      border-radius:14px;
+      border:1px dashed rgba(17,24,39,.14);
+      pointer-events:none;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(5, 1fr);
+      gap:10px;
+    }
+    @media (max-width: 520px){
+      .grid{ grid-template-columns:repeat(4, 1fr); }
+    }
+
+    .tileBtn{
+      border:1px solid var(--line);
+      background:linear-gradient(180deg, #ffffff, var(--tile));
+      border-radius:14px;
+      height:78px;
+      cursor:pointer;
+      position:relative;
+      overflow:hidden;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform .08s ease, background .2s ease;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:30px;
+    }
+    .tileBtn:active{ transform: translateY(1px); }
+    .tileBtn.closed{
+      background:linear-gradient(180deg, #ffffff, var(--tile2));
+    }
+    .tileBtn.closed::after{
+      content:"🧊";
+      position:absolute;
+      right:10px; bottom:10px;
+      font-size:14px;
+      opacity:.55;
+    }
+    .tileBtn.open{
+      background:#ffffff;
+    }
+    .tileBtn.open.good{
+      outline:3px solid rgba(16,185,129,.22);
+      border-color:rgba(16,185,129,.35);
+    }
+    .tileBtn.open.bad{
+      outline:3px solid rgba(239,68,68,.22);
+      border-color:rgba(239,68,68,.35);
+    }
+
+    /* Side panel */
+    .side{
+      background:rgba(255,255,255,.85);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:14px;
+      display:grid;
+      gap:10px;
+      align-content:start;
+    }
+    .stat{
+      display:flex;
+      justify-content:space-between;
+      align-items:baseline;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:rgba(17,24,39,.03);
+      font-size:13px;
+    }
+    .big{
+      font-size:18px;
+      font-weight:900;
+    }
+    .btnRow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
     }
     button{
       appearance:none;
       border:1px solid var(--line);
-      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      background:linear-gradient(180deg, rgba(255,255,255,.95), rgba(17,24,39,.02));
       color:var(--text);
       padding:10px 12px;
-      border-radius:12px;
+      border-radius:14px;
       cursor:pointer;
-      font-weight:650;
-      transition:.15s transform, .15s background;
-    }
-    button:hover{ background:rgba(255,255,255,.06); }
-    button:active{ transform:translateY(1px); }
-    .ghostBtn{ background:linear-gradient(180deg, rgba(255,80,120,.18), rgba(255,80,120,.05)); }
-    .okBtn{ background:linear-gradient(180deg, rgba(90,140,255,.22), rgba(90,140,255,.06)); }
-    .row{
-      display:flex;
-      gap:10px;
-      flex:1 1 280px;
-      min-width:240px;
-      align-items:center;
-    }
-    input{
-      width:100%;
-      border:1px solid var(--line);
-      background:rgba(0,0,0,.20);
-      color:var(--text);
-      padding:10px 12px;
-      border-radius:12px;
-      outline:none;
-    }
-    input::placeholder{ color:rgba(234,242,255,.45); }
-    .chips{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-      align-items:center;
-      width:100%;
-    }
-    .chip{
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(0,0,0,.18);
-      padding:6px 10px;
-      border-radius:999px;
-      font-size:13px;
-      color:rgba(234,242,255,.92);
-      display:flex;
-      gap:8px;
-      align-items:center;
-    }
-    .chip .x{
-      pointer-events:auto;
-      cursor:pointer;
-      user-select:none;
-      opacity:.75;
       font-weight:800;
+      transition:.15s transform;
     }
-    .chip .x:hover{ opacity:1; }
-
-    /* 모바일 방향패드 (선택) */
-    .dpad{
-      position:absolute;
-      bottom:18px;
-      left:18px;
-      display:none;
-      gap:10px;
-      pointer-events:auto;
-      user-select:none;
+    button:active{ transform: translateY(1px); }
+    .primary{
+      background:linear-gradient(180deg, rgba(59,130,246,.20), rgba(59,130,246,.06));
+      border-color:rgba(59,130,246,.35);
     }
-    .dpad button{ width:54px; height:54px; }
-    @media (max-width: 720px){
-      .hint{ text-align:left; }
-      .dpad{ display:flex; }
+    .danger{
+      background:linear-gradient(180deg, rgba(239,68,68,.16), rgba(239,68,68,.05));
+      border-color:rgba(239,68,68,.28);
+    }
+    .note{
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.5;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:#fff;
+      font-size:13px;
+      width:max-content;
+    }
+    .shake{
+      animation: shake .25s linear 1;
+    }
+    @keyframes shake{
+      0%{ transform:translateX(0); }
+      25%{ transform:translateX(-4px); }
+      50%{ transform:translateX(4px); }
+      75%{ transform:translateX(-3px); }
+      100%{ transform:translateX(0); }
     }
   </style>
 </head>
@@ -164,644 +268,393 @@ canvas{
   <div class="wrap">
     <header>
       <div>
-        <h1>🍽️ Eat What You Want</h1>
+        <h1>🧊 Fridge Roulette — Eat What You Want</h1>
+        <p class="sub">칸을 열어 “오늘의 소원 음식 3개”를 제한 시간 안에 찾아보자. 🤢(유통기한) 뜨면 -3초!</p>
       </div>
-      <p class="hint">
-        이동: 방향키/WASD · 시작: Space/Start · 일시정지: P · 리셋: R<br/>
-        목표: 먹고 싶은 거 다 먹기(🍕🍜🍰) + “Guilt” 유령 피하기 👻
-      </p>
+      <p class="sub">모바일: 그냥 탭하면 됨 · 리플레이: New Game</p>
     </header>
 
-    <div class="card">
-      <div class="gameArea">
-        <canvas id="game" width="800" height="576"></canvas>
+    <section class="card">
+      <div class="topbar">
+        <div class="pill"><b>Targets</b> <span style="color:var(--muted)">오늘 먹고 싶은 것 3개</span></div>
+        <div class="targets" id="targets"></div>
+        <div class="msg" id="msg">New Game을 눌러 시작!</div>
+      </div>
 
-        <div class="hud">
-          <div class="box" id="leftHud"></div>
-          <div class="box" id="rightHud"></div>
+      <div class="content">
+        <div class="fridge">
+          <div class="grid" id="grid" aria-label="fridge grid"></div>
         </div>
 
-        <div class="dpad" id="dpad">
-          <div style="display:flex;flex-direction:column;gap:10px;">
-            <button id="upBtn">↑</button>
-            <div style="display:flex;gap:10px;">
-              <button id="leftBtn">←</button>
-              <button id="downBtn">↓</button>
-              <button id="rightBtn">→</button>
-            </div>
+        <aside class="side">
+          <div class="stat"><span>⏳ Time</span><span class="big" id="time">—</span></div>
+          <div class="stat"><span>🧊 Opened</span><span class="big" id="opened">0</span></div>
+          <div class="stat"><span>🏆 Best</span><span class="big" id="best">—</span></div>
+
+          <div class="btnRow">
+            <button class="primary" id="newBtn">New Game</button>
+            <button id="peekBtn">Peek (1s)</button>
+            <button class="danger" id="resetBestBtn">Reset Best</button>
           </div>
-        </div>
+
+          <div class="badge" id="modeBadge">Difficulty: <b>Normal</b></div>
+          <div class="btnRow">
+            <button id="easyBtn">Easy</button>
+            <button id="normalBtn">Normal</button>
+            <button id="hardBtn">Hard</button>
+          </div>
+
+          <p class="note">
+            - 목표 3개를 다 찾으면 승리 🎉<br/>
+            - 🤢를 열면 시간이 깎여요 (-3s)<br/>
+            - Peek은 1초 동안 전체가 살짝 보이는 “냉장고 문 열기”<br/>
+            - Best는 “클리어까지 걸린 시간(빠를수록 좋음)”으로 기록
+          </p>
+        </aside>
       </div>
-
-      <div class="panel">
-        <button class="okBtn" id="startBtn">Start</button>
-        <button id="pauseBtn">Pause</button>
-        <button class="ghostBtn" id="resetBtn">Reset</button>
-
-        <div class="row">
-          <input id="foodInput" placeholder="추가하고 싶은 음식/이모지 (예: 🍜, 떡볶이, ice cream)" />
-          <button id="addFoodBtn">Add</button>
-        </div>
-
-        <div class="chips" id="foodChips"></div>
-      </div>
-    </div>
+    </section>
   </div>
 
 <script>
 (() => {
-  // ====== MAP (25 x 18), TILE=32 => canvas 800x576 ======
-  const TILE = 32;
-  const MAP = [
-    "#########################",
-    "#........#.......#......#",
-    "#.#####..#..###..#..#####",
-    "#.#...#..#.......#......#",
-    "#.#.#.#..####.#####.##..#",
-    "#...#.#.......#.....##..#",
-    "###.#.######..#.###.....#",
-    "#...#......#..#...#######",
-    "#.######.#.#..###.......#",
-    "#......#.#.#......#####.#",
-    "#.####.#.#.######.#.....#",
-    "#.#....#.#........#.###.#",
-    "#.#.####.########.#.#...#",
-    "#.#.............#.#.###.#",
-    "#.######.########.#.....#",
-    "#.......#.........#..##.#",
-    "#####..###..#####.#.....#",
-    "#########################",
+  // ===== Config =====
+  const FOOD_POOL = [
+    "🍕","🍔","🍟","🌭","🥪","🥗","🥙","🥟","🍜","🍣",
+    "🍙","🍱","🍛","🍝","🍗","🥩","🥓","🧀","🥐","🥖",
+    "🍰","🧁","🍩","🍪","🍫","🍦","🍧","🍓","🍇","🍉",
+    "🍊","🍌","🥭","🍒","🧋","☕","🥛","🥑","🌮","🫔"
   ];
-  const ROWS = MAP.length;
-  const COLS = MAP[0].length;
+  const BAD = "🤢";
+  const STORAGE_BEST = "fridgeRoulette_best_v1";
 
-  const canvas = document.getElementById("game");
-  const ctx = canvas.getContext("2d");
+  const gridEl = document.getElementById("grid");
+  const targetsEl = document.getElementById("targets");
+  const msgEl = document.getElementById("msg");
+  const timeEl = document.getElementById("time");
+  const openedEl = document.getElementById("opened");
+  const bestEl = document.getElementById("best");
 
-  // ====== UI ======
-  const leftHud = document.getElementById("leftHud");
-  const rightHud = document.getElementById("rightHud");
-  const startBtn = document.getElementById("startBtn");
-  const pauseBtn = document.getElementById("pauseBtn");
-  const resetBtn = document.getElementById("resetBtn");
-  const foodInput = document.getElementById("foodInput");
-  const addFoodBtn = document.getElementById("addFoodBtn");
-  const foodChips = document.getElementById("foodChips");
+  const newBtn = document.getElementById("newBtn");
+  const peekBtn = document.getElementById("peekBtn");
+  const resetBestBtn = document.getElementById("resetBestBtn");
 
-  // ====== FOOD POOL (기본) ======
-  const DEFAULT_FOODS = [
-    "🍕","🍔","🍟","🌭","🥟","🍜","🍣","🍙","🍗","🥩","🥓",
-    "🍰","🧁","🍩","🍪","🍫","🍦","🍧","🍭","🧋","☕","🥤",
-    "🍓","🍇","🍉","🍊","🍌","🥭","🍒","🥐","🥖","🧀"
-  ];
-  const STORAGE_KEY = "ewyw_custom_foods_v1";
+  const easyBtn = document.getElementById("easyBtn");
+  const normalBtn = document.getElementById("normalBtn");
+  const hardBtn = document.getElementById("hardBtn");
+  const modeBadge = document.getElementById("modeBadge");
 
-  function loadCustomFoods(){
-    try{
-      const raw = localStorage.getItem(STORAGE_KEY);
-      const arr = raw ? JSON.parse(raw) : [];
-      return Array.isArray(arr) ? arr.filter(Boolean) : [];
-    }catch{
-      return [];
+  // ===== Difficulty presets =====
+  const DIFFS = {
+    easy:   { cols:4, rows:4, time:26, badRate:0.10, penalty:2, peekCooldown:6 },
+    normal: { cols:5, rows:4, time:22, badRate:0.14, penalty:3, peekCooldown:8 },
+    hard:   { cols:5, rows:5, time:20, badRate:0.18, penalty:4, peekCooldown:10 },
+  };
+  let diffKey = "normal";
+  let diff = DIFFS[diffKey];
+
+  // ===== State =====
+  let tiles = [];              // { value, open, hitType: "good"|"bad"|null }
+  let targets = [];            // array of 3 emoji
+  let found = new Set();
+  let openedCount = 0;
+
+  let totalTime = diff.time;
+  let timeLeft = diff.time;
+  let running = false;
+  let timerId = null;
+  let startedAt = null;
+
+  let peekLockedUntil = 0; // timestamp in ms
+
+  // ===== Helpers =====
+  const rand = (n) => (Math.random() * n) | 0;
+  const shuffle = (arr) => {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = (Math.random() * (i + 1)) | 0;
+      [arr[i], arr[j]] = [arr[j], arr[i]];
     }
-  }
-  function saveCustomFoods(arr){
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(arr.slice(0, 40)));
-  }
-
-  let customFoods = loadCustomFoods();
-
-  function getFoodPool(){
-    const merged = [...DEFAULT_FOODS, ...customFoods];
-    // 중복 제거
-    return [...new Set(merged)];
-  }
-
-  function renderChips(){
-    foodChips.innerHTML = "";
-    if(customFoods.length === 0){
-      const tip = document.createElement("div");
-      tip.style.color = "rgba(234,242,255,.65)";
-      tip.style.fontSize = "13px";
-      tip.textContent = "Tip: 위 입력칸에 음식/이모지를 추가하면, 게임에 랜덤으로 등장해요.";
-      foodChips.appendChild(tip);
-      return;
-    }
-    customFoods.forEach((f, idx) => {
-      const chip = document.createElement("div");
-      chip.className = "chip";
-      chip.innerHTML = `<span>${escapeHtml(f)}</span><span class="x" title="삭제">×</span>`;
-      chip.querySelector(".x").addEventListener("click", () => {
-        customFoods.splice(idx, 1);
-        saveCustomFoods(customFoods);
-        renderChips();
-      });
-      foodChips.appendChild(chip);
-    });
-  }
-
-  function escapeHtml(s){
-    return String(s).replace(/[&<>"']/g, c => ({
-      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-    }[c]));
-  }
-
-  addFoodBtn.addEventListener("click", () => {
-    const v = foodInput.value.trim();
-    if(!v) return;
-    if(customFoods.includes(v)) { foodInput.value=""; return; }
-    customFoods.unshift(v);
-    customFoods = customFoods.slice(0, 30);
-    saveCustomFoods(customFoods);
-    foodInput.value = "";
-    renderChips();
-  });
-
-  renderChips();
-
-  // ====== AUDIO (가벼운 삑 소리) ======
-  let audioCtx = null;
-  function beep(freq=520, ms=60, gain=0.03){
-    try{
-      if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const o = audioCtx.createOscillator();
-      const g = audioCtx.createGain();
-      o.type = "sine";
-      o.frequency.value = freq;
-      g.gain.value = gain;
-      o.connect(g).connect(audioCtx.destination);
-      o.start();
-      setTimeout(() => { o.stop(); }, ms);
-    }catch{}
-  }
-
-  // ====== HELPERS ======
-  const empties = [];
-  for(let y=0; y<ROWS; y++){
-    for(let x=0; x<COLS; x++){
-      if(MAP[y][x] !== "#") empties.push({x,y});
-    }
-  }
-
-  function isWallTile(tx, ty){
-    if(tx<0 || ty<0 || tx>=COLS || ty>=ROWS) return true;
-    return MAP[ty][tx] === "#";
-  }
-
-  function circleHitsWall(x, y, r){
-    const pts = [
-      {x:x-r, y:y-r},{x:x+r, y:y-r},{x:x-r, y:y+r},{x:x+r, y:y+r},
-      {x:x, y:y-r},{x:x, y:y+r},{x:x-r, y:y},{x:x+r, y:y}
-    ];
-    for(const p of pts){
-      const tx = Math.floor(p.x / TILE);
-      const ty = Math.floor(p.y / TILE);
-      if(isWallTile(tx, ty)) return true;
-    }
-    return false;
-  }
-
-  function dist2(ax, ay, bx, by){
-    const dx=ax-bx, dy=ay-by;
-    return dx*dx + dy*dy;
-  }
-
-  function pickEmptyTile(){
-    return empties[(Math.random()*empties.length)|0];
-  }
-
-  function tileCenter(tx, ty){
-    return { x: tx*TILE + TILE/2, y: ty*TILE + TILE/2 };
-  }
-
-  // ====== GAME STATE ======
-  let state = "menu"; // menu | play | pause | over
-  let score = 0;
-  let lives = 3;
-  let eaten = []; // 최근 먹은 음식
-  let powerTimer = 0; // seconds
-  let message = "Space 또는 Start로 시작!";
-  let tSinceSpawn = 0;
-
-  const player = {
-    x: TILE*1.5,
-    y: TILE*1.5,
-    r: 12,
-    speed: 170,
-    vx: 0, vy: 0
+    return arr;
   };
 
-  const ghosts = [];
-  function makeGhost(x, y){
-    return {
-      x, y,
-      r: 12,
-      speed: 125,
-      dir: {x:1, y:0},
-      deadTimer: 0
-    };
+  function loadBest(){
+    const raw = localStorage.getItem(STORAGE_BEST);
+    const v = raw ? Number(raw) : null;
+    return Number.isFinite(v) ? v : null;
+  }
+  function saveBest(sec){
+    localStorage.setItem(STORAGE_BEST, String(sec));
+  }
+  function formatSec(s){
+    return `${s.toFixed(1)}s`;
   }
 
-  const foods = [];
-  const MAX_FOODS = 38;
-
-  function resetGame(){
-    score = 0;
-    lives = 3;
-    eaten = [];
-    powerTimer = 0;
-    message = "Eat what you want. No guilt.";
-    state = "menu";
-
-    const p = tileCenter(1,1);
-    player.x = p.x; player.y = p.y;
-
-    ghosts.length = 0;
-    const g1 = tileCenter(COLS-3, 1);
-    const g2 = tileCenter(COLS-3, ROWS-3);
-    ghosts.push(makeGhost(g1.x, g1.y));
-    ghosts.push(makeGhost(g2.x, g2.y));
-
-    foods.length = 0;
-    for(let i=0;i<MAX_FOODS;i++) spawnFood();
+  function setMessage(s){
+    msgEl.textContent = s;
   }
 
-  function spawnFood(){
-    const pool = getFoodPool();
-    const {x:tx, y:ty} = pickEmptyTile();
-    const c = tileCenter(tx, ty);
+  function setDiff(key){
+    diffKey = key;
+    diff = DIFFS[diffKey];
+    modeBadge.innerHTML = `Difficulty: <b>${diffKey[0].toUpperCase() + diffKey.slice(1)}</b>`;
+    // 반응형 그리드 컬럼 변경
+    gridEl.style.gridTemplateColumns = `repeat(${diff.cols}, 1fr)`;
+    // 새 게임 준비
+    stopTimer();
+    renderTime("--");
+    setMessage("New Game을 눌러 시작!");
+    buildEmptyGrid();
+  }
 
-    // 시작 위치 근처는 너무 빽빽하지 않게
-    if(dist2(c.x, c.y, player.x, player.y) < (TILE*3)*(TILE*3)) return;
+  function renderBest(){
+    const b = loadBest();
+    bestEl.textContent = b == null ? "—" : formatSec(b);
+  }
 
-    // 같은 칸 중복 스폰 방지
-    for(const f of foods){
-      if(Math.floor(f.x/TILE)===tx && Math.floor(f.y/TILE)===ty) return;
+  function renderTime(v){
+    timeEl.textContent = (typeof v === "string") ? v : formatSec(v);
+  }
+
+  function stopTimer(){
+    running = false;
+    if(timerId) clearInterval(timerId);
+    timerId = null;
+  }
+
+  function startTimer(){
+    stopTimer();
+    running = true;
+    startedAt = performance.now();
+    timerId = setInterval(() => {
+      timeLeft = Math.max(0, timeLeft - 0.1);
+      renderTime(timeLeft);
+      if(timeLeft <= 0){
+        stopTimer();
+        endGame(false, "⏰ 시간 끝! 냉장고 문 닫힘…");
+      }
+    }, 100);
+  }
+
+  function buildEmptyGrid(){
+    tiles = [];
+    gridEl.innerHTML = "";
+    targetsEl.innerHTML = "";
+    openedCount = 0;
+    openedEl.textContent = "0";
+
+    const total = diff.cols * diff.rows;
+    for(let i=0;i<total;i++){
+      tiles.push({ value:"", open:false, hitType:null });
+      const btn = document.createElement("button");
+      btn.className = "tileBtn closed";
+      btn.type = "button";
+      btn.setAttribute("aria-label", "closed tile");
+      btn.dataset.idx = String(i);
+      btn.textContent = "❄️";
+      btn.addEventListener("click", onTileClick);
+      gridEl.appendChild(btn);
+    }
+  }
+
+  function pickTargets(){
+    const pool = shuffle([...FOOD_POOL]);
+    return pool.slice(0, 3);
+  }
+
+  function placeValues(){
+    const total = diff.cols * diff.rows;
+    const values = new Array(total).fill(null);
+
+    // 1) place targets (at least one each)
+    const positions = shuffle([...Array(total)].map((_,i)=>i));
+    targets.forEach((t, k) => {
+      values[positions[k]] = t;
+    });
+
+    // 2) fill rest with random foods or BAD
+    for(let i=0;i<total;i++){
+      if(values[i] != null) continue;
+      const badRoll = Math.random() < diff.badRate;
+      values[i] = badRoll ? BAD : FOOD_POOL[rand(FOOD_POOL.length)];
     }
 
-    const roll = Math.random();
-    const isPower = roll < 0.10; // 10% 확률로 "No Guilt" 파워푸드
-    const emoji = isPower ? "✨" : pool[(Math.random()*pool.length)|0];
+    // 3) assign to tiles
+    for(let i=0;i<total;i++){
+      tiles[i].value = values[i];
+      tiles[i].open = false;
+      tiles[i].hitType = null;
+    }
+  }
 
-    foods.push({
-      x: c.x,
-      y: c.y,
-      r: isPower ? 11 : 9,
-      emoji,
-      isPower
+  function renderTargets(){
+    targetsEl.innerHTML = "";
+    targets.forEach(t => {
+      const el = document.createElement("div");
+      el.className = "target";
+      el.dataset.t = t;
+      el.innerHTML = `<span style="font-size:18px">${t}</span><span style="font-weight:850">find</span>`;
+      targetsEl.appendChild(el);
     });
   }
 
-  resetGame();
+  function markTargetDone(t){
+    const el = targetsEl.querySelector(`.target[data-t="${CSS.escape(t)}"]`);
+    if(el) el.classList.add("done");
+  }
 
-  // ====== INPUT ======
-  const keys = new Set();
-  window.addEventListener("keydown", (e) => {
-    const k = e.key.toLowerCase();
-    keys.add(k);
+  function openTile(i, reason="click"){
+    const tile = tiles[i];
+    if(tile.open) return;
 
-    if(k === " "){
-      e.preventDefault();
-      if(state === "menu" || state === "over") startPlay();
+    tile.open = true;
+    openedCount++;
+    openedEl.textContent = String(openedCount);
+
+    const btn = gridEl.children[i];
+    btn.classList.remove("closed");
+    btn.classList.add("open");
+    btn.textContent = tile.value;
+
+    if(tile.value === BAD){
+      tile.hitType = "bad";
+      btn.classList.add("bad");
+      timeLeft = Math.max(0, timeLeft - diff.penalty);
+      renderTime(timeLeft);
+      setMessage(`🤢 유통기한… -${diff.penalty}s`);
+      // 작은 흔들림
+      btn.classList.add("shake");
+      setTimeout(()=>btn.classList.remove("shake"), 260);
+      return;
     }
-    if(k === "p"){
-      if(state === "play") state = "pause";
-      else if(state === "pause") state = "play";
+
+    // target?
+    if(targets.includes(tile.value) && !found.has(tile.value)){
+      found.add(tile.value);
+      tile.hitType = "good";
+      btn.classList.add("good");
+      markTargetDone(tile.value);
+      setMessage(`✅ ${tile.value} 찾았다! (${found.size}/3)`);
+      if(found.size === 3){
+        stopTimer();
+        const clearSec = (performance.now() - startedAt) / 1000;
+        endGame(true, `🎉 클리어! (걸린 시간: ${formatSec(clearSec)})`, clearSec);
+      }
+    }else{
+      setMessage("냠… 근데 오늘의 소원은 아님 😋");
     }
-    if(k === "r"){
-      resetGame();
-      startPlay();
+  }
+
+  function onTileClick(e){
+    if(!running){
+      setMessage("New Game을 눌러 시작해줘!");
+      return;
     }
+    const i = Number(e.currentTarget.dataset.idx);
+    openTile(i);
+  }
+
+  function endGame(win, message, clearSec=null){
+    setMessage(message);
+
+    // 모두 열어주기 (결과 공개)
+    for(let i=0;i<tiles.length;i++){
+      if(!tiles[i].open){
+        const btn = gridEl.children[i];
+        btn.classList.remove("closed");
+        btn.classList.add("open");
+        btn.textContent = tiles[i].value;
+        tiles[i].open = true;
+      }
+    }
+
+    // best 갱신
+    if(win && clearSec != null){
+      const best = loadBest();
+      if(best == null || clearSec < best){
+        saveBest(clearSec);
+        renderBest();
+        setMessage(message + " 🏆 NEW BEST!");
+      }
+    }
+  }
+
+  function newGame(){
+    stopTimer();
+    diff = DIFFS[diffKey];
+
+    totalTime = diff.time;
+    timeLeft = diff.time;
+    renderTime(timeLeft);
+
+    found = new Set();
+    openedCount = 0;
+    openedEl.textContent = "0";
+    peekLockedUntil = 0;
+
+    targets = pickTargets();
+    renderTargets();
+
+    placeValues();
+
+    // reset UI grid to closed
+    for(let i=0;i<tiles.length;i++){
+      tiles[i].open = false;
+      tiles[i].hitType = null;
+      const btn = gridEl.children[i];
+      btn.className = "tileBtn closed";
+      btn.textContent = "❄️";
+    }
+
+    setMessage("Start! 냉장고에서 소원 3개를 찾아!");
+    startTimer();
+  }
+
+  function peek(){
+    if(!running){
+      setMessage("New Game 후에 Peek 가능!");
+      return;
+    }
+    const now = Date.now();
+    if(now < peekLockedUntil){
+      const left = Math.ceil((peekLockedUntil - now)/1000);
+      setMessage(`Peek 쿨다운… ${left}s`);
+      return;
+    }
+    peekLockedUntil = now + diff.peekCooldown * 1000;
+
+    // 1초간 미리보기(열리지 않은 칸도 보이게)
+    const prev = [];
+    for(let i=0;i<tiles.length;i++){
+      const btn = gridEl.children[i];
+      prev.push(btn.textContent);
+      if(!tiles[i].open) btn.textContent = tiles[i].value;
+    }
+    setMessage("👀 냉장고 문 OPEN (1s)");
+    setTimeout(() => {
+      for(let i=0;i<tiles.length;i++){
+        const btn = gridEl.children[i];
+        if(!tiles[i].open) btn.textContent = "❄️";
+      }
+      setMessage("문 닫힘. 기억으로 승부해!");
+    }, 1000);
+  }
+
+  // ===== Wire up buttons =====
+  newBtn.addEventListener("click", () => newGame());
+  peekBtn.addEventListener("click", () => peek());
+  resetBestBtn.addEventListener("click", () => {
+    localStorage.removeItem(STORAGE_BEST);
+    renderBest();
+    setMessage("Best 기록 초기화!");
   });
-  window.addEventListener("keyup", (e) => keys.delete(e.key.toLowerCase()));
 
-  // 모바일 D-pad
-  function bindHold(btn, downKey){
-    const down = () => keys.add(downKey);
-    const up = () => keys.delete(downKey);
-    btn.addEventListener("pointerdown", (e) => { e.preventDefault(); down(); });
-    btn.addEventListener("pointerup", up);
-    btn.addEventListener("pointercancel", up);
-    btn.addEventListener("pointerleave", up);
-  }
-  bindHold(document.getElementById("upBtn"), "arrowup");
-  bindHold(document.getElementById("downBtn"), "arrowdown");
-  bindHold(document.getElementById("leftBtn"), "arrowleft");
-  bindHold(document.getElementById("rightBtn"), "arrowright");
+  easyBtn.addEventListener("click", () => setDiff("easy"));
+  normalBtn.addEventListener("click", () => setDiff("normal"));
+  hardBtn.addEventListener("click", () => setDiff("hard"));
 
-  // ====== BUTTONS ======
-  startBtn.addEventListener("click", () => {
-    if(state === "play") return;
-    startPlay();
-  });
-  pauseBtn.addEventListener("click", () => {
-    if(state === "play") state = "pause";
-    else if(state === "pause") state = "play";
-  });
-  resetBtn.addEventListener("click", () => {
-    resetGame();
-    startPlay();
-  });
-
-  function startPlay(){
-    if(state === "over") resetGame();
-    state = "play";
-    message = "Eat what you want. (P: pause)";
-    beep(620, 70, 0.03);
-  }
-
-  // ====== UPDATE LOOP ======
-  let last = performance.now();
-  function tick(now){
-    const dt = Math.min(0.033, (now - last) / 1000);
-    last = now;
-
-    if(state === "play"){
-      update(dt);
-    }
-    draw();
-    requestAnimationFrame(tick);
-  }
-  requestAnimationFrame(tick);
-
-  function update(dt){
-    // power timer
-    if(powerTimer > 0) powerTimer = Math.max(0, powerTimer - dt);
-
-    // movement input
-    let ax = 0, ay = 0;
-    if(keys.has("arrowleft") || keys.has("a")) ax -= 1;
-    if(keys.has("arrowright") || keys.has("d")) ax += 1;
-    if(keys.has("arrowup") || keys.has("w")) ay -= 1;
-    if(keys.has("arrowdown") || keys.has("s")) ay += 1;
-
-    // normalize (대각선 속도 보정)
-    const mag = Math.hypot(ax, ay) || 1;
-    ax /= mag; ay /= mag;
-
-    const nx = player.x + ax * player.speed * dt;
-    const ny = player.y + ay * player.speed * dt;
-
-    // axis-separated collision
-    let px = player.x, py = player.y;
-    if(!circleHitsWall(nx, py, player.r)) px = nx;
-    if(!circleHitsWall(px, ny, player.r)) py = ny;
-    player.x = px; player.y = py;
-
-    // eat foods
-    for(let i=foods.length-1; i>=0; i--){
-      const f = foods[i];
-      const rr = player.r + f.r;
-      if(dist2(player.x, player.y, f.x, f.y) <= rr*rr){
-        foods.splice(i,1);
-        if(f.isPower){
-          powerTimer = 5.0;
-          score += 80;
-          message = "✨ NO GUILT MODE! (5s)";
-          beep(880, 90, 0.04);
-        }else{
-          score += 20;
-          eaten.unshift(f.emoji);
-          eaten = eaten.slice(0, 10);
-          beep(680, 45, 0.028);
-        }
-      }
-    }
-
-    // respawn foods over time
-    tSinceSpawn += dt;
-    if(tSinceSpawn > 0.18){
-      tSinceSpawn = 0;
-      if(foods.length < MAX_FOODS) spawnFood();
-    }
-
-    // ghosts
-    for(const g of ghosts){
-      if(g.deadTimer > 0){
-        g.deadTimer = Math.max(0, g.deadTimer - dt);
-        if(g.deadTimer === 0){
-          // respawn at corner
-          const resp = tileCenter(COLS-3, ROWS-3);
-          g.x = resp.x; g.y = resp.y;
-          g.dir = {x:-1, y:0};
-        }
-        continue;
-      }
-
-      // choose direction when near tile center or blocked
-      const tx = Math.floor(g.x / TILE);
-      const ty = Math.floor(g.y / TILE);
-      const c = tileCenter(tx, ty);
-      const nearCenter = Math.abs(g.x - c.x) < 2.2 && Math.abs(g.y - c.y) < 2.2;
-
-      const nextBlocked = (() => {
-        const ntx = tx + g.dir.x;
-        const nty = ty + g.dir.y;
-        return isWallTile(ntx, nty);
-      })();
-
-      if(nearCenter || nextBlocked){
-        const dirs = [
-          {x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}
-        ].filter(d => !isWallTile(tx + d.x, ty + d.y));
-
-        // 너무 빈약하면 그대로
-        if(dirs.length){
-          // reverse는 웬만하면 피하기
-          const rev = {x:-g.dir.x, y:-g.dir.y};
-          const cand = dirs.filter(d => !(d.x===rev.x && d.y===rev.y));
-          const use = cand.length ? cand : dirs;
-
-          // 목표: power 중이면 멀어지고, 아니면 가까워지기
-          let best = use[0];
-          let bestVal = powerTimer > 0 ? -Infinity : Infinity;
-
-          for(const d of use){
-            const nx = (tx + d.x)*TILE + TILE/2;
-            const ny = (ty + d.y)*TILE + TILE/2;
-            const dd = dist2(nx, ny, player.x, player.y);
-            if(powerTimer > 0){
-              // 멀수록 좋음
-              if(dd > bestVal){ bestVal = dd; best = d; }
-            }else{
-              // 가까울수록 좋음
-              if(dd < bestVal){ bestVal = dd; best = d; }
-            }
-          }
-
-          // 약간 랜덤성
-          if(Math.random() < 0.08){
-            best = use[(Math.random()*use.length)|0];
-          }
-
-          g.dir = best;
-          // center snap
-          g.x = c.x; g.y = c.y;
-        }
-      }
-
-      const sp = g.speed * (powerTimer > 0 ? 0.85 : 1.0);
-      const gx = g.x + g.dir.x * sp * dt;
-      const gy = g.y + g.dir.y * sp * dt;
-
-      // tile-based collision (벽이면 멈추고 다음 프레임에 방향 재선택)
-      if(!circleHitsWall(gx, gy, g.r)){
-        g.x = gx; g.y = gy;
-      }
-
-      // collide with player
-      const rr = g.r + player.r;
-      if(dist2(g.x, g.y, player.x, player.y) <= rr*rr){
-        if(powerTimer > 0){
-          // eat ghost
-          g.deadTimer = 1.2;
-          score += 200;
-          message = "👻 nom nom. guilt OUT.";
-          beep(220, 90, 0.04);
-        }else{
-          lives -= 1;
-          message = lives > 0 ? "👻 Guilt hit… 그래도 먹어! (잠깐 무적)" : "Game Over. R로 다시!";
-          beep(160, 130, 0.05);
-
-          // 잠깐 무적: powerTimer를 아주 짧게 주는 방식으로 처리(유령이 멀어짐)
-          powerTimer = 0.9;
-
-          // player respawn
-          const p2 = tileCenter(1,1);
-          player.x = p2.x; player.y = p2.y;
-
-          if(lives <= 0){
-            state = "over";
-          }
-        }
-      }
-    }
-  }
-
-  // ====== DRAW ======
-  function draw(){
-    ctx.clearRect(0,0,canvas.width, canvas.height);
-
-    // background grid glow
-    ctx.save();
-    ctx.globalAlpha = 0.12;
-    for(let y=0; y<ROWS; y++){
-      for(let x=0; x<COLS; x++){
-        if((x+y)%2===0){
-          ctx.fillStyle = "#ffffff";
-          ctx.fillRect(x*TILE, y*TILE, TILE, TILE);
-        }
-      }
-    }
-    ctx.restore();
-
-    // walls
-    for(let y=0; y<ROWS; y++){
-      for(let x=0; x<COLS; x++){
-        if(MAP[y][x] === "#"){
-          // wall block
-          ctx.fillStyle = "rgba(120,170,255,.20)";
-          ctx.fillRect(x*TILE, y*TILE, TILE, TILE);
-
-          // inner shading
-          ctx.fillStyle = "rgba(0,0,0,.22)";
-          ctx.fillRect(x*TILE+2, y*TILE+2, TILE-4, TILE-4);
-        }
-      }
-    }
-
-    // foods
-    ctx.font = "18px system-ui, -apple-system, Segoe UI, Roboto, Arial";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    for(const f of foods){
-      if(f.isPower){
-        ctx.save();
-        ctx.globalAlpha = 0.95;
-        ctx.fillText("✨", f.x, f.y);
-        ctx.restore();
-      }else{
-        ctx.fillText(f.emoji, f.x, f.y);
-      }
-    }
-
-    // player
-    ctx.save();
-    const glow = powerTimer > 0 ? 0.55 : 0.25;
-    ctx.shadowColor = powerTimer > 0 ? "rgba(255,255,255,.9)" : "rgba(90,140,255,.9)";
-    ctx.shadowBlur = 18;
-    ctx.fillStyle = powerTimer > 0 ? "rgba(255,255,255,.92)" : "rgba(90,140,255,.92)";
-    ctx.beginPath();
-    ctx.arc(player.x, player.y, player.r, 0, Math.PI*2);
-    ctx.fill();
-    ctx.restore();
-
-    // ghosts
-    for(const g of ghosts){
-      if(g.deadTimer > 0) continue;
-      ctx.save();
-      ctx.shadowColor = powerTimer > 0 ? "rgba(255,255,255,.55)" : "rgba(255,80,120,.65)";
-      ctx.shadowBlur = 18;
-      ctx.fillStyle = powerTimer > 0 ? "rgba(255,255,255,.55)" : "rgba(255,80,120,.72)";
-      ctx.beginPath();
-      ctx.arc(g.x, g.y, g.r, 0, Math.PI*2);
-      ctx.fill();
-
-      // face
-      ctx.shadowBlur = 0;
-      ctx.fillStyle = "rgba(0,0,0,.55)";
-      ctx.beginPath();
-      ctx.arc(g.x-4, g.y-2, 2.2, 0, Math.PI*2);
-      ctx.arc(g.x+4, g.y-2, 2.2, 0, Math.PI*2);
-      ctx.fill();
-      ctx.restore();
-    }
-
-    // overlay text in center for menu/pause/over
-    if(state !== "play"){
-      ctx.save();
-      ctx.fillStyle = "rgba(0,0,0,.55)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      ctx.fillStyle = "rgba(234,242,255,.95)";
-      ctx.font = "700 30px system-ui, -apple-system, Segoe UI, Roboto, Arial";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-
-      const title =
-        state === "menu" ? "Eat What You Want" :
-        state === "pause" ? "Paused" : "Game Over";
-
-      ctx.fillText(title, canvas.width/2, canvas.height/2 - 32);
-
-      ctx.font = "500 15px system-ui, -apple-system, Segoe UI, Roboto, Arial";
-      const sub =
-        state === "menu"
-          ? "Space / Start로 시작 · 유령(👻)을 피하면서 음식(🍕🍜🍰)을 먹어!"
-          : state === "pause"
-          ? "P 또는 Pause 버튼으로 재개"
-          : "R 또는 Reset으로 다시 시작";
-
-      ctx.fillStyle = "rgba(234,242,255,.78)";
-      ctx.fillText(sub, canvas.width/2, canvas.height/2 + 4);
-
-      ctx.font = "500 13px system-ui, -apple-system, Segoe UI, Roboto, Arial";
-      ctx.fillStyle = "rgba(234,242,255,.65)";
-      ctx.fillText("✨는 5초간 NO GUILT MODE (유령이 도망감 + 유령도 먹을 수 있음)", canvas.width/2, canvas.height/2 + 28);
-      ctx.restore();
-    }
-
-    // HUD
-    const wish = eaten.slice(0,6).join(" ");
-    leftHud.innerHTML =
-      `<b>Score</b> ${score} · <b>Lives</b> ${"❤️".repeat(Math.max(0,lives)) || "0"}<br/>` +
-      `<span style="color:rgba(234,242,255,.72)">Message:</span> ${escapeHtml(message)}`;
-
-    rightHud.innerHTML =
-      `<b>Wish List</b><br/>` +
-      `<span style="color:rgba(234,242,255,.88)">${wish || "…아직 배고픔"}</span>` +
-      `<div style="margin-top:6px;color:rgba(234,242,255,.72)">${powerTimer>0 ? `NO GUILT ${powerTimer.toFixed(1)}s` : "✨를 먹으면 No Guilt Mode"}</div>`;
-  }
+  // ===== Init =====
+  renderBest();
+  setDiff("normal");
+  buildEmptyGrid();
 })();
 </script>
 </body>
