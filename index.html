@@ -1,325 +1,826 @@
-images/mouth-face.jpg
-
 <!doctype html>
 <html lang="ko">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>주희의 입으로 네이버 맛집 검색하기</title>
-
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Eat What You Want</title>
   <style>
     :root{
-      --bg: #f6efe4;
-      --text: #111111;
-      --panel: rgba(255,255,255,.85);
-      --border: rgba(0,0,0,.14);
-
-      --headSize: min(78vw, 520px);
-      --mouthTop: 64%;
-      --mouthLeft: 50%;
-      --mouthW: 80%;
-      --mouthH: 22%;
-
-      /* 이미지 보정 조절값 */
-      --img-contrast: 1.18;
-      --img-brightness: 0.95;
-      --img-grain-opacity: 0.06; /* 0 ~ 0.12 권장 */
+      --bg:#0b0f14;
+      --panel:#121a24;
+      --text:#eaf2ff;
+      --muted:rgba(234,242,255,.7);
+      --line:rgba(234,242,255,.14);
+      --btn:#1b2a3b;
+      --btn2:#23364d;
     }
     *{ box-sizing:border-box; }
     body{
       margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-      background: var(--bg);
-      color: var(--text);
+      background:radial-gradient(1200px 700px at 20% 10%, rgba(90,140,255,.18), transparent 60%),
+                 radial-gradient(1000px 600px at 80% 20%, rgba(255,120,200,.12), transparent 55%),
+                 var(--bg);
+      color:var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:22px;
     }
     .wrap{
-      min-height: 100vh;
+      width:min(980px, 100%);
+      display:grid;
+      gap:14px;
+    }
+    header{
       display:flex;
-      flex-direction: column;
-      align-items:center;
-      justify-content:center;
-      padding: 24px 14px 40px;
-      gap: 14px;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:10px;
+    }
+    h1{
+      margin:0;
+      font-size:20px;
+      letter-spacing:.2px;
     }
     .hint{
-      text-align:center;
-      max-width: 58ch;
-      line-height: 1.55;
-      font-size: 14px;
-      color: rgba(0,0,0,.72);
+      margin:0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.35;
+      text-align:right;
     }
-
-    .stage{
-      position: relative;
-      width: var(--headSize);
-      height: var(--headSize);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      user-select:none;
-    }
-
-    /* 얼굴/입 이미지를 배경 레이어로 추가하여 흑백/그로테스크한 느낌을 줍니다.
-       images/mouth-face.jpg 파일을 repo에 추가하거나 원하는 경로로 바꿔주세요. */
-    .head{
-      position:absolute;
-      inset:0;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      /* 이미지(최상단) + 기존 라이트 그라디언트 레이어들 */
-      background:
-        url('images/mouth-face.jpg') center/cover no-repeat,
-        radial-gradient(circle at 35% 30%, rgba(255,255,255,.95), rgba(255,255,255,.45) 38%, rgba(0,0,0,.03) 60%, rgba(0,0,0,.08) 100%),
-        linear-gradient(180deg, rgba(255,255,255,.35), rgba(0,0,0,.02));
-      box-shadow: 0 14px 46px rgba(0,0,0,.10);
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--line);
+      border-radius:16px;
       overflow:hidden;
-
-      /* 흑백/콘트라스트 보정으로 그로테스크한 톤을 만듭니다 */
-      filter: grayscale(100%) contrast(var(--img-contrast)) brightness(var(--img-brightness));
-      /* 이미지가 너무 선명하면 좀 더 어둡게 섞음 (선택사항) */
-      background-blend-mode: normal, overlay, normal;
+      box-shadow:0 10px 30px rgba(0,0,0,.35);
+    }
+    .gameArea{
       position:relative;
+      padding:12px;
+      background:rgba(0,0,0,.10);
     }
-
-    /* 가벼운 필름 그레인 (질감) */
-    .head::after{
-      content: "";
-      pointer-events: none;
-      position: absolute;
-      inset: 0;
-      /* 아주 약한 노이즈를 SVG 패턴으로 오버레이 — 투명도로 조절 */
-      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><filter id='n'><feTurbulence baseFrequency='0.8' numOctaves='1' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.6' /></svg>");
-      background-size: 200% 200%;
-      mix-blend-mode: overlay;
-      opacity: var(--img-grain-opacity);
+    canvas{
+      display:block;
+      width:100%;
+      height:auto;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.10);
+      background:#070a0f;
     }
-
-    .eye{
+    .hud{
       position:absolute;
-      top: 36%;
-      width: 14%;
-      height: 14%;
-      border-radius: 999px;
-      background: rgba(0,0,0,.14);
-      box-shadow: inset 0 0 0 6px rgba(255,255,255,.35);
-    }
-    .eye.left{ left: 26%; }
-    .eye.right{ right: 26%; }
-
-    .nose{
-      position:absolute;
-      top: 50%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 10%;
-      height: 7%;
-      border-radius: 999px;
-      background: rgba(0,0,0,.10);
-    }
-
-    /* mouth: now contains two inputs (지역, 음식) + 버튼 */
-    .mouth{
-      position:absolute;
-      top: var(--mouthTop);
-      left: var(--mouthLeft);
-      transform: translate(-50%, -50%);
-      width: var(--mouthW);
-      height: var(--mouthH);
-
-      border-radius: 999px;
-      background: rgba(0,0,0,.16);
-      border: 1px solid rgba(0,0,0,.18);
-      box-shadow: inset 0 0 0 2px rgba(255,255,255,.32);
-      padding: 10px;
+      top:18px;
+      left:18px;
+      right:18px;
       display:flex;
-      align-items:center;
-      gap: 10px;
+      justify-content:space-between;
+      align-items:flex-start;
+      pointer-events:none;
+      gap:10px;
+      font-size:13px;
+      color:rgba(234,242,255,.92);
+      text-shadow:0 2px 10px rgba(0,0,0,.8);
+    }
+    .hud .box{
+      background:rgba(0,0,0,.30);
+      border:1px solid rgba(255,255,255,.12);
+      padding:10px 12px;
+      border-radius:12px;
       backdrop-filter: blur(6px);
-      z-index: 3; /* 얼굴 사진보다 위에 오도록 */
     }
-
-    /* 만약 입을 '흰색 구멍'으로 만들어 입력창이 안에서 보이게 하고 싶다면:
-       .mouth { background: transparent; } 와 아래의 .mouth-hole 스타일을 사용하세요.
-       (아래는 선택적 — 현재는 어두운 반투명 상태 유지) */
-    .mouth-hole{
-      position:absolute;
-      inset: 0;
-      border-radius: inherit;
-      background: rgba(255,255,255,1);
-      mix-blend-mode: normal;
-      z-index: 2;
+    .hud .box b{ font-weight:700; }
+    .panel{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+      padding:12px;
+      background:rgba(255,255,255,.03);
+      border-top:1px solid var(--line);
     }
-
-    /* container for inputs to control relative sizes */
-    .inputs{
+    button{
+      appearance:none;
+      border:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:650;
+      transition:.15s transform, .15s background;
+    }
+    button:hover{ background:rgba(255,255,255,.06); }
+    button:active{ transform:translateY(1px); }
+    .ghostBtn{ background:linear-gradient(180deg, rgba(255,80,120,.18), rgba(255,80,120,.05)); }
+    .okBtn{ background:linear-gradient(180deg, rgba(90,140,255,.22), rgba(90,140,255,.06)); }
+    .row{
+      display:flex;
+      gap:10px;
+      flex:1 1 280px;
+      min-width:240px;
+      align-items:center;
+    }
+    input{
+      width:100%;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.20);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      outline:none;
+    }
+    input::placeholder{ color:rgba(234,242,255,.45); }
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+      width:100%;
+    }
+    .chip{
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(0,0,0,.18);
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:13px;
+      color:rgba(234,242,255,.92);
       display:flex;
       gap:8px;
       align-items:center;
-      flex:1;
-      height:100%;
     }
-
-    .mouth input{
-      height: 100%;
-      border: none;
-      outline: none;
-      background: var(--panel);
-      color: var(--text);
-      border-radius: 999px;
-      padding: 0 12px;
-      font-size: 16px;
-    }
-
-    .mouth .loc{
-      width: 32%;
-      min-width: 80px;
-      max-width: 140px;
-    }
-    .mouth .food{
-      flex: 1;
-    }
-
-    .mouth button{
-      height: 100%;
-      border: 1px solid rgba(0,0,0,.18);
-      background: rgba(255,255,255,.92);
-      border-radius: 999px;
-      padding: 0 14px;
-      font-weight: 800;
+    .chip .x{
+      pointer-events:auto;
       cursor:pointer;
-      white-space: nowrap;
+      user-select:none;
+      opacity:.75;
+      font-weight:800;
     }
-    .mouth button:hover{ background: rgba(255,255,255,1); }
+    .chip .x:hover{ opacity:1; }
 
-    .row{
-      display:flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content:center;
-      align-items:center;
-      margin-top: 2px;
+    /* 모바일 방향패드 (선택) */
+    .dpad{
+      position:absolute;
+      bottom:18px;
+      left:18px;
+      display:none;
+      gap:10px;
+      pointer-events:auto;
+      user-select:none;
     }
-    .chip{
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,.65);
-      padding: 8px 10px;
-      border-radius: 999px;
-      font-size: 13px;
-      cursor:pointer;
-    }
-    .chip:hover{ background: rgba(255,255,255,.90); }
-
-    .small{
-      font-size: 12px;
-      color: rgba(0,0,0,.62);
-      text-align:center;
-      margin-top: 6px;
-    }
-
-    /* 반응형: 작은 화면에서 얼굴 이미지를 더 중앙에 보이게 */
-    @media (max-width: 420px){
-      .head { background-position: center top; }
-      :root { --mouthTop: 68%; }
+    .dpad button{ width:54px; height:54px; }
+    @media (max-width: 720px){
+      .hint{ text-align:left; }
+      .dpad{ display:flex; }
     }
   </style>
 </head>
-
 <body>
   <div class="wrap">
-    <div class="hint">
-      <b>오늘도 원하는 음식을 맛있게 먹어요 “맛집” 검색</b><br/>
-      예: <b>지역: 성수</b> + <b>음식: 파스타</b> → 네이버에서 <b>“성수 파스타 맛집”</b>으로 검색돼요.
-    </div>
+    <header>
+      <div>
+        <h1>🍽️ Eat What You Want</h1>
+      </div>
+      <p class="hint">
+        이동: 방향키/WASD · 시작: Space/Start · 일시정지: P · 리셋: R<br/>
+        목표: 먹고 싶은 거 다 먹기(🍕🍜🍰) + “Guilt” 유령 피하기 👻
+      </p>
+    </header>
 
-    <div class="stage" aria-label="Joohee head naver 맛집 search">
-      <div class="head" role="img" aria-label="흑백 그로테스크한 얼굴 이미지"></div>
-      <div class="eye left"></div>
-      <div class="eye right"></div>
-      <div class="nose"></div>
+    <div class="card">
+      <div class="gameArea">
+        <canvas id="game" width="800" height="576"></canvas>
 
-      <form class="mouth" id="mouthForm">
-        <div class="inputs" aria-hidden="false">
-          <input
-            id="locInput"
-            class="loc"
-            type="text"
-            inputmode="text"
-            autocomplete="off"
-            placeholder="지역 (예: 성수)"
-            aria-label="지역"
-          />
-          <input
-            id="foodInput"
-            class="food"
-            type="text"
-            inputmode="search"
-            autocomplete="off"
-            placeholder="음식 (예: 파스타)"
-            aria-label="음식"
-          />
+        <div class="hud">
+          <div class="box" id="leftHud"></div>
+          <div class="box" id="rightHud"></div>
         </div>
-        <button type="submit">냠! 검색</button>
-      </form>
-    </div>
 
-    <div class="row">
-      <!-- 각 버튼에 data-location / data-food 속성 추가 -->
-      <button class="chip" type="button" data-location="홍대" data-food="라멘">홍대 라멘</button>
-      <button class="chip" type="button" data-location="을지로" data-food="포차">을지로 포차</button>
-      <button class="chip" type="button" data-location="연남" data-food="파스타">연남 파스타</button>
-      <button class="chip" type="button" data-location="성수" data-food="베이커리">성수 베이커리</button>
-      <button class="chip" type="button" data-location="동인천" data-food="냉면">동인천 냉면</button>
-      <button class="chip" type="button" data-location="부평" data-food="카페">부평 카페</button>
-    </div>
+        <div class="dpad" id="dpad">
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <button id="upBtn">↑</button>
+            <div style="display:flex;gap:10px;">
+              <button id="leftBtn">←</button>
+              <button id="downBtn">↓</button>
+              <button id="rightBtn">→</button>
+            </div>
+          </div>
+        </div>
+      </div>
 
-    <div class="small">
-      * 입력에 이미 “맛집”이 포함돼 있으면 중복으로 붙이지 않아요.
+      <div class="panel">
+        <button class="okBtn" id="startBtn">Start</button>
+        <button id="pauseBtn">Pause</button>
+        <button class="ghostBtn" id="resetBtn">Reset</button>
+
+        <div class="row">
+          <input id="foodInput" placeholder="추가하고 싶은 음식/이모지 (예: 🍜, 떡볶이, ice cream)" />
+          <button id="addFoodBtn">Add</button>
+        </div>
+
+        <div class="chips" id="foodChips"></div>
+      </div>
     </div>
   </div>
 
-  <script>
-    // location + food를 받아서 적절히 결합하고 "맛집" 중복을 방지합니다.
-    function normalizeQuery(locationRaw, foodRaw) {
-      const loc = (locationRaw || "").trim().replace(/\s+/g, " ");
-      const food = (foodRaw || "").trim().replace(/\s+/g, " ");
-      const parts = [];
-      if (loc) parts.push(loc);
-      if (food) parts.push(food);
-      if (parts.length === 0) return "";
-      const q = parts.join(" ");
-      // location 또는 food 어디에든 "맛집"이 들어있으면 추가하지 않음
-      const hasMatjip = /맛\s*집/.test(q);
-      return hasMatjip ? q : q + " 맛집";
+<script>
+(() => {
+  // ====== MAP (25 x 18), TILE=32 => canvas 800x576 ======
+  const TILE = 32;
+  const MAP = [
+    "#########################",
+    "#........#.......#......#",
+    "#.#####..#..###..#..#####",
+    "#.#...#..#.......#......#",
+    "#.#.#.#..####.#####.##..#",
+    "#...#.#.......#.....##..#",
+    "###.#.######..#.###.....#",
+    "#...#......#..#...#######",
+    "#.######.#.#..###.......#",
+    "#......#.#.#......#####.#",
+    "#.####.#.#.######.#.....#",
+    "#.#....#.#........#.###.#",
+    "#.#.####.########.#.#...#",
+    "#.#.............#.#.###.#",
+    "#.######.########.#.....#",
+    "#.......#.........#..##.#",
+    "#####..###..#####.#.....#",
+    "#########################",
+  ];
+  const ROWS = MAP.length;
+  const COLS = MAP[0].length;
+
+  const canvas = document.getElementById("game");
+  const ctx = canvas.getContext("2d");
+
+  // ====== UI ======
+  const leftHud = document.getElementById("leftHud");
+  const rightHud = document.getElementById("rightHud");
+  const startBtn = document.getElementById("startBtn");
+  const pauseBtn = document.getElementById("pauseBtn");
+  const resetBtn = document.getElementById("resetBtn");
+  const foodInput = document.getElementById("foodInput");
+  const addFoodBtn = document.getElementById("addFoodBtn");
+  const foodChips = document.getElementById("foodChips");
+
+  // ====== FOOD POOL (기본) ======
+  const DEFAULT_FOODS = [
+    "🍕","🍔","🍟","🌭","🥟","🍜","🍣","🍙","🍗","🥩","🥓",
+    "🍰","🧁","🍩","🍪","🍫","🍦","🍧","🍭","🧋","☕","🥤",
+    "🍓","🍇","🍉","🍊","🍌","🥭","🍒","🥐","🥖","🧀"
+  ];
+  const STORAGE_KEY = "ewyw_custom_foods_v1";
+
+  function loadCustomFoods(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr.filter(Boolean) : [];
+    }catch{
+      return [];
     }
+  }
+  function saveCustomFoods(arr){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(arr.slice(0, 40)));
+  }
 
-    function goNaverSearch(location, food) {
-      const q = normalizeQuery(location, food);
-      if (!q) return;
-      const url = "https://search.naver.com/search.naver?query=" + encodeURIComponent(q);
-      window.open(url, "_blank", "noopener,noreferrer");
+  let customFoods = loadCustomFoods();
+
+  function getFoodPool(){
+    const merged = [...DEFAULT_FOODS, ...customFoods];
+    // 중복 제거
+    return [...new Set(merged)];
+  }
+
+  function renderChips(){
+    foodChips.innerHTML = "";
+    if(customFoods.length === 0){
+      const tip = document.createElement("div");
+      tip.style.color = "rgba(234,242,255,.65)";
+      tip.style.fontSize = "13px";
+      tip.textContent = "Tip: 위 입력칸에 음식/이모지를 추가하면, 게임에 랜덤으로 등장해요.";
+      foodChips.appendChild(tip);
+      return;
     }
-
-    const form = document.getElementById("mouthForm");
-    const locInput = document.getElementById("locInput");
-    const foodInput = document.getElementById("foodInput");
-
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      goNaverSearch(locInput.value, foodInput.value);
-    });
-
-    // 칩 클릭: data-location / data-food가 있으면 두 필드에 채우고 검색
-    document.querySelectorAll(".chip").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const loc = btn.getAttribute("data-location") || "";
-        const food = btn.getAttribute("data-food") || "";
-        if (loc) locInput.value = loc;
-        if (food) foodInput.value = food;
-        goNaverSearch(loc, food);
+    customFoods.forEach((f, idx) => {
+      const chip = document.createElement("div");
+      chip.className = "chip";
+      chip.innerHTML = `<span>${escapeHtml(f)}</span><span class="x" title="삭제">×</span>`;
+      chip.querySelector(".x").addEventListener("click", () => {
+        customFoods.splice(idx, 1);
+        saveCustomFoods(customFoods);
+        renderChips();
       });
+      foodChips.appendChild(chip);
     });
+  }
 
-    // 작은 UX 개선: food 입력만 하고 Enter 치면 제출되도록 이미 form 동작으로 처리됨
-  </script>
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, c => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[c]));
+  }
+
+  addFoodBtn.addEventListener("click", () => {
+    const v = foodInput.value.trim();
+    if(!v) return;
+    if(customFoods.includes(v)) { foodInput.value=""; return; }
+    customFoods.unshift(v);
+    customFoods = customFoods.slice(0, 30);
+    saveCustomFoods(customFoods);
+    foodInput.value = "";
+    renderChips();
+  });
+
+  renderChips();
+
+  // ====== AUDIO (가벼운 삑 소리) ======
+  let audioCtx = null;
+  function beep(freq=520, ms=60, gain=0.03){
+    try{
+      if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.type = "sine";
+      o.frequency.value = freq;
+      g.gain.value = gain;
+      o.connect(g).connect(audioCtx.destination);
+      o.start();
+      setTimeout(() => { o.stop(); }, ms);
+    }catch{}
+  }
+
+  // ====== HELPERS ======
+  const empties = [];
+  for(let y=0; y<ROWS; y++){
+    for(let x=0; x<COLS; x++){
+      if(MAP[y][x] !== "#") empties.push({x,y});
+    }
+  }
+
+  function isWallTile(tx, ty){
+    if(tx<0 || ty<0 || tx>=COLS || ty>=ROWS) return true;
+    return MAP[ty][tx] === "#";
+  }
+
+  function circleHitsWall(x, y, r){
+    const pts = [
+      {x:x-r, y:y-r},{x:x+r, y:y-r},{x:x-r, y:y+r},{x:x+r, y:y+r},
+      {x:x, y:y-r},{x:x, y:y+r},{x:x-r, y:y},{x:x+r, y:y}
+    ];
+    for(const p of pts){
+      const tx = Math.floor(p.x / TILE);
+      const ty = Math.floor(p.y / TILE);
+      if(isWallTile(tx, ty)) return true;
+    }
+    return false;
+  }
+
+  function dist2(ax, ay, bx, by){
+    const dx=ax-bx, dy=ay-by;
+    return dx*dx + dy*dy;
+  }
+
+  function pickEmptyTile(){
+    return empties[(Math.random()*empties.length)|0];
+  }
+
+  function tileCenter(tx, ty){
+    return { x: tx*TILE + TILE/2, y: ty*TILE + TILE/2 };
+  }
+
+  // ====== GAME STATE ======
+  let state = "menu"; // menu | play | pause | over
+  let score = 0;
+  let lives = 3;
+  let eaten = []; // 최근 먹은 음식
+  let powerTimer = 0; // seconds
+  let message = "Space 또는 Start로 시작!";
+  let tSinceSpawn = 0;
+
+  const player = {
+    x: TILE*1.5,
+    y: TILE*1.5,
+    r: 12,
+    speed: 170,
+    vx: 0, vy: 0
+  };
+
+  const ghosts = [];
+  function makeGhost(x, y){
+    return {
+      x, y,
+      r: 12,
+      speed: 125,
+      dir: {x:1, y:0},
+      deadTimer: 0
+    };
+  }
+
+  const foods = [];
+  const MAX_FOODS = 38;
+
+  function resetGame(){
+    score = 0;
+    lives = 3;
+    eaten = [];
+    powerTimer = 0;
+    message = "Eat what you want. No guilt.";
+    state = "menu";
+
+    const p = tileCenter(1,1);
+    player.x = p.x; player.y = p.y;
+
+    ghosts.length = 0;
+    const g1 = tileCenter(COLS-3, 1);
+    const g2 = tileCenter(COLS-3, ROWS-3);
+    ghosts.push(makeGhost(g1.x, g1.y));
+    ghosts.push(makeGhost(g2.x, g2.y));
+
+    foods.length = 0;
+    for(let i=0;i<MAX_FOODS;i++) spawnFood();
+  }
+
+  function spawnFood(){
+    const pool = getFoodPool();
+    const {x:tx, y:ty} = pickEmptyTile();
+    const c = tileCenter(tx, ty);
+
+    // 시작 위치 근처는 너무 빽빽하지 않게
+    if(dist2(c.x, c.y, player.x, player.y) < (TILE*3)*(TILE*3)) return;
+
+    // 같은 칸 중복 스폰 방지
+    for(const f of foods){
+      if(Math.floor(f.x/TILE)===tx && Math.floor(f.y/TILE)===ty) return;
+    }
+
+    const roll = Math.random();
+    const isPower = roll < 0.10; // 10% 확률로 "No Guilt" 파워푸드
+    const emoji = isPower ? "✨" : pool[(Math.random()*pool.length)|0];
+
+    foods.push({
+      x: c.x,
+      y: c.y,
+      r: isPower ? 11 : 9,
+      emoji,
+      isPower
+    });
+  }
+
+  resetGame();
+
+  // ====== INPUT ======
+  const keys = new Set();
+  window.addEventListener("keydown", (e) => {
+    const k = e.key.toLowerCase();
+    keys.add(k);
+
+    if(k === " "){
+      e.preventDefault();
+      if(state === "menu" || state === "over") startPlay();
+    }
+    if(k === "p"){
+      if(state === "play") state = "pause";
+      else if(state === "pause") state = "play";
+    }
+    if(k === "r"){
+      resetGame();
+      startPlay();
+    }
+  });
+  window.addEventListener("keyup", (e) => keys.delete(e.key.toLowerCase()));
+
+  // 모바일 D-pad
+  function bindHold(btn, downKey){
+    const down = () => keys.add(downKey);
+    const up = () => keys.delete(downKey);
+    btn.addEventListener("pointerdown", (e) => { e.preventDefault(); down(); });
+    btn.addEventListener("pointerup", up);
+    btn.addEventListener("pointercancel", up);
+    btn.addEventListener("pointerleave", up);
+  }
+  bindHold(document.getElementById("upBtn"), "arrowup");
+  bindHold(document.getElementById("downBtn"), "arrowdown");
+  bindHold(document.getElementById("leftBtn"), "arrowleft");
+  bindHold(document.getElementById("rightBtn"), "arrowright");
+
+  // ====== BUTTONS ======
+  startBtn.addEventListener("click", () => {
+    if(state === "play") return;
+    startPlay();
+  });
+  pauseBtn.addEventListener("click", () => {
+    if(state === "play") state = "pause";
+    else if(state === "pause") state = "play";
+  });
+  resetBtn.addEventListener("click", () => {
+    resetGame();
+    startPlay();
+  });
+
+  function startPlay(){
+    if(state === "over") resetGame();
+    state = "play";
+    message = "Eat what you want. (P: pause)";
+    beep(620, 70, 0.03);
+  }
+
+  // ====== UPDATE LOOP ======
+  let last = performance.now();
+  function tick(now){
+    const dt = Math.min(0.033, (now - last) / 1000);
+    last = now;
+
+    if(state === "play"){
+      update(dt);
+    }
+    draw();
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  function update(dt){
+    // power timer
+    if(powerTimer > 0) powerTimer = Math.max(0, powerTimer - dt);
+
+    // movement input
+    let ax = 0, ay = 0;
+    if(keys.has("arrowleft") || keys.has("a")) ax -= 1;
+    if(keys.has("arrowright") || keys.has("d")) ax += 1;
+    if(keys.has("arrowup") || keys.has("w")) ay -= 1;
+    if(keys.has("arrowdown") || keys.has("s")) ay += 1;
+
+    // normalize (대각선 속도 보정)
+    const mag = Math.hypot(ax, ay) || 1;
+    ax /= mag; ay /= mag;
+
+    const nx = player.x + ax * player.speed * dt;
+    const ny = player.y + ay * player.speed * dt;
+
+    // axis-separated collision
+    let px = player.x, py = player.y;
+    if(!circleHitsWall(nx, py, player.r)) px = nx;
+    if(!circleHitsWall(px, ny, player.r)) py = ny;
+    player.x = px; player.y = py;
+
+    // eat foods
+    for(let i=foods.length-1; i>=0; i--){
+      const f = foods[i];
+      const rr = player.r + f.r;
+      if(dist2(player.x, player.y, f.x, f.y) <= rr*rr){
+        foods.splice(i,1);
+        if(f.isPower){
+          powerTimer = 5.0;
+          score += 80;
+          message = "✨ NO GUILT MODE! (5s)";
+          beep(880, 90, 0.04);
+        }else{
+          score += 20;
+          eaten.unshift(f.emoji);
+          eaten = eaten.slice(0, 10);
+          beep(680, 45, 0.028);
+        }
+      }
+    }
+
+    // respawn foods over time
+    tSinceSpawn += dt;
+    if(tSinceSpawn > 0.18){
+      tSinceSpawn = 0;
+      if(foods.length < MAX_FOODS) spawnFood();
+    }
+
+    // ghosts
+    for(const g of ghosts){
+      if(g.deadTimer > 0){
+        g.deadTimer = Math.max(0, g.deadTimer - dt);
+        if(g.deadTimer === 0){
+          // respawn at corner
+          const resp = tileCenter(COLS-3, ROWS-3);
+          g.x = resp.x; g.y = resp.y;
+          g.dir = {x:-1, y:0};
+        }
+        continue;
+      }
+
+      // choose direction when near tile center or blocked
+      const tx = Math.floor(g.x / TILE);
+      const ty = Math.floor(g.y / TILE);
+      const c = tileCenter(tx, ty);
+      const nearCenter = Math.abs(g.x - c.x) < 2.2 && Math.abs(g.y - c.y) < 2.2;
+
+      const nextBlocked = (() => {
+        const ntx = tx + g.dir.x;
+        const nty = ty + g.dir.y;
+        return isWallTile(ntx, nty);
+      })();
+
+      if(nearCenter || nextBlocked){
+        const dirs = [
+          {x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}
+        ].filter(d => !isWallTile(tx + d.x, ty + d.y));
+
+        // 너무 빈약하면 그대로
+        if(dirs.length){
+          // reverse는 웬만하면 피하기
+          const rev = {x:-g.dir.x, y:-g.dir.y};
+          const cand = dirs.filter(d => !(d.x===rev.x && d.y===rev.y));
+          const use = cand.length ? cand : dirs;
+
+          // 목표: power 중이면 멀어지고, 아니면 가까워지기
+          let best = use[0];
+          let bestVal = powerTimer > 0 ? -Infinity : Infinity;
+
+          for(const d of use){
+            const nx = (tx + d.x)*TILE + TILE/2;
+            const ny = (ty + d.y)*TILE + TILE/2;
+            const dd = dist2(nx, ny, player.x, player.y);
+            if(powerTimer > 0){
+              // 멀수록 좋음
+              if(dd > bestVal){ bestVal = dd; best = d; }
+            }else{
+              // 가까울수록 좋음
+              if(dd < bestVal){ bestVal = dd; best = d; }
+            }
+          }
+
+          // 약간 랜덤성
+          if(Math.random() < 0.08){
+            best = use[(Math.random()*use.length)|0];
+          }
+
+          g.dir = best;
+          // center snap
+          g.x = c.x; g.y = c.y;
+        }
+      }
+
+      const sp = g.speed * (powerTimer > 0 ? 0.85 : 1.0);
+      const gx = g.x + g.dir.x * sp * dt;
+      const gy = g.y + g.dir.y * sp * dt;
+
+      // tile-based collision (벽이면 멈추고 다음 프레임에 방향 재선택)
+      if(!circleHitsWall(gx, gy, g.r)){
+        g.x = gx; g.y = gy;
+      }
+
+      // collide with player
+      const rr = g.r + player.r;
+      if(dist2(g.x, g.y, player.x, player.y) <= rr*rr){
+        if(powerTimer > 0){
+          // eat ghost
+          g.deadTimer = 1.2;
+          score += 200;
+          message = "👻 nom nom. guilt OUT.";
+          beep(220, 90, 0.04);
+        }else{
+          lives -= 1;
+          message = lives > 0 ? "👻 Guilt hit… 그래도 먹어! (잠깐 무적)" : "Game Over. R로 다시!";
+          beep(160, 130, 0.05);
+
+          // 잠깐 무적: powerTimer를 아주 짧게 주는 방식으로 처리(유령이 멀어짐)
+          powerTimer = 0.9;
+
+          // player respawn
+          const p2 = tileCenter(1,1);
+          player.x = p2.x; player.y = p2.y;
+
+          if(lives <= 0){
+            state = "over";
+          }
+        }
+      }
+    }
+  }
+
+  // ====== DRAW ======
+  function draw(){
+    ctx.clearRect(0,0,canvas.width, canvas.height);
+
+    // background grid glow
+    ctx.save();
+    ctx.globalAlpha = 0.12;
+    for(let y=0; y<ROWS; y++){
+      for(let x=0; x<COLS; x++){
+        if((x+y)%2===0){
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(x*TILE, y*TILE, TILE, TILE);
+        }
+      }
+    }
+    ctx.restore();
+
+    // walls
+    for(let y=0; y<ROWS; y++){
+      for(let x=0; x<COLS; x++){
+        if(MAP[y][x] === "#"){
+          // wall block
+          ctx.fillStyle = "rgba(120,170,255,.20)";
+          ctx.fillRect(x*TILE, y*TILE, TILE, TILE);
+
+          // inner shading
+          ctx.fillStyle = "rgba(0,0,0,.22)";
+          ctx.fillRect(x*TILE+2, y*TILE+2, TILE-4, TILE-4);
+        }
+      }
+    }
+
+    // foods
+    ctx.font = "18px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    for(const f of foods){
+      if(f.isPower){
+        ctx.save();
+        ctx.globalAlpha = 0.95;
+        ctx.fillText("✨", f.x, f.y);
+        ctx.restore();
+      }else{
+        ctx.fillText(f.emoji, f.x, f.y);
+      }
+    }
+
+    // player
+    ctx.save();
+    const glow = powerTimer > 0 ? 0.55 : 0.25;
+    ctx.shadowColor = powerTimer > 0 ? "rgba(255,255,255,.9)" : "rgba(90,140,255,.9)";
+    ctx.shadowBlur = 18;
+    ctx.fillStyle = powerTimer > 0 ? "rgba(255,255,255,.92)" : "rgba(90,140,255,.92)";
+    ctx.beginPath();
+    ctx.arc(player.x, player.y, player.r, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+
+    // ghosts
+    for(const g of ghosts){
+      if(g.deadTimer > 0) continue;
+      ctx.save();
+      ctx.shadowColor = powerTimer > 0 ? "rgba(255,255,255,.55)" : "rgba(255,80,120,.65)";
+      ctx.shadowBlur = 18;
+      ctx.fillStyle = powerTimer > 0 ? "rgba(255,255,255,.55)" : "rgba(255,80,120,.72)";
+      ctx.beginPath();
+      ctx.arc(g.x, g.y, g.r, 0, Math.PI*2);
+      ctx.fill();
+
+      // face
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = "rgba(0,0,0,.55)";
+      ctx.beginPath();
+      ctx.arc(g.x-4, g.y-2, 2.2, 0, Math.PI*2);
+      ctx.arc(g.x+4, g.y-2, 2.2, 0, Math.PI*2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // overlay text in center for menu/pause/over
+    if(state !== "play"){
+      ctx.save();
+      ctx.fillStyle = "rgba(0,0,0,.55)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = "rgba(234,242,255,.95)";
+      ctx.font = "700 30px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+
+      const title =
+        state === "menu" ? "Eat What You Want" :
+        state === "pause" ? "Paused" : "Game Over";
+
+      ctx.fillText(title, canvas.width/2, canvas.height/2 - 32);
+
+      ctx.font = "500 15px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+      const sub =
+        state === "menu"
+          ? "Space / Start로 시작 · 유령(👻)을 피하면서 음식(🍕🍜🍰)을 먹어!"
+          : state === "pause"
+          ? "P 또는 Pause 버튼으로 재개"
+          : "R 또는 Reset으로 다시 시작";
+
+      ctx.fillStyle = "rgba(234,242,255,.78)";
+      ctx.fillText(sub, canvas.width/2, canvas.height/2 + 4);
+
+      ctx.font = "500 13px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+      ctx.fillStyle = "rgba(234,242,255,.65)";
+      ctx.fillText("✨는 5초간 NO GUILT MODE (유령이 도망감 + 유령도 먹을 수 있음)", canvas.width/2, canvas.height/2 + 28);
+      ctx.restore();
+    }
+
+    // HUD
+    const wish = eaten.slice(0,6).join(" ");
+    leftHud.innerHTML =
+      `<b>Score</b> ${score} · <b>Lives</b> ${"❤️".repeat(Math.max(0,lives)) || "0"}<br/>` +
+      `<span style="color:rgba(234,242,255,.72)">Message:</span> ${escapeHtml(message)}`;
+
+    rightHud.innerHTML =
+      `<b>Wish List</b><br/>` +
+      `<span style="color:rgba(234,242,255,.88)">${wish || "…아직 배고픔"}</span>` +
+      `<div style="margin-top:6px;color:rgba(234,242,255,.72)">${powerTimer>0 ? `NO GUILT ${powerTimer.toFixed(1)}s` : "✨를 먹으면 No Guilt Mode"}</div>`;
+  }
+})();
+</script>
 </body>
 </html>
